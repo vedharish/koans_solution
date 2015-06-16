@@ -114,6 +114,7 @@ class Game
   def initialize
     @players = []
     @next_turn = 0
+    @completed = false
   end
 
   def start(no_of_players)
@@ -140,9 +141,10 @@ class Game
       if !next_player.allowed_to_accumulate
         next_player.allowed_to_accumulate = true
         puts "#{next_player} is now allowed to accumulate scores from the next turn!"
-      elsif player_score >= 3000
+      elsif player_score >= 3000 && !@completed
         @stop_game_at = @next_turn
         puts "----------\nPlayer #{next_player} reached #{player_score}.\nThis is the Final Round!\n----------"
+        @completed = true
       end
     end
     self.increment_turn
@@ -177,3 +179,4 @@ loop do
   puts "turn - #{new_game.next_turn}"
   break if new_game.play_turn
 end
+new_game.results

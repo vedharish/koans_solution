@@ -1,16 +1,10 @@
-# EXTRA CREDIT:
-#
-# Create a program that will play the Greed Game.
-# Rules for the game are in GREED_RULES.TXT.
-#
-# You already have a DiceSet class and score function you can use.
-# Write a player class and a Game class to complete the project.  This
-# is a free form assignment, so approach it however you desire.
 class DiceSet
   attr_reader :values
+
   def initialize
     @values = []
   end
+
   def roll(tim)
     @values = []
     tim.times { @values << 1+rand(6) }
@@ -145,6 +139,9 @@ class Game
   end
 
   def play_turn
+    # returns true if the game is completed
+
+
     # Check if the last round was the final round
     if @next_turn == @stop_game_at
       puts "The game is over."

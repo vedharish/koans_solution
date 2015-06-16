@@ -64,6 +64,7 @@ class Player
     
     raise DiceSetNotDefined if @@dice_set.nil?
 
+    # loops until the player forfiets the turn or scores zero in a roll
     loop do
       puts "\n\n\n #{self} is rolling #{num_dice} dices... Press Enter to continue."
       gets.chomp
@@ -84,13 +85,14 @@ class Player
       end
 
       acc_score += roll_score
+      # Get the number of dice faces whose values doesn't contribute to the score. Also roll 5 dices if all contributes to the score.
       num_dice = non_scoring.values.inject { |sum, values| sum + values}
       num_dice = 5 if(num_dice == 0 || num_dice.nil?)
       is_s = (num_dice > 1) ? "s" : ""
       puts "Enter 'yes' if you want to roll #{num_dice} dice#{is_s} again. Your accumulated score uptil now is #{acc_score}. And your total score is #{@score}."
       response = gets.chomp
 
-      if not response.downcase.include?("yes")
+      if not response.downcase.strip.eql?("yes")
         @score += acc_score
         puts "You forfieted your turn."
         break
@@ -135,6 +137,8 @@ class Game
       end
       @players << temp_player
     end
+    # @stop_game_at points to an index outside of @players array initially
+    # It is initialized to point to a player to mark the final round
     @stop_game_at = no_of_players+1
   end
 
@@ -151,6 +155,7 @@ class Game
     next_player = self.next_turn
     player_score = next_player.play_turn
 
+    # Diving into the game rules
     if player_score >= 300
       if !next_player.allowed_to_accumulate
         next_player.allowed_to_accumulate = true

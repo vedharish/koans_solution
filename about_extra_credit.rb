@@ -69,14 +69,6 @@ class Player
     @allowed_to_accumulate = false
   end
 
-  def to_s
-    "#{self.name} with score #{self.score}"
-  end
-
-  def inspect
-    self.to_s
-  end
-
   def play_turn
     acc_score = 0
     num_dice = 5
@@ -111,6 +103,14 @@ class Player
     puts "Your total score is #{@score}."
     return @score
   end
+
+  def to_s
+    "#{self.name} with score #{self.score}"
+  end
+
+  def inspect
+    self.to_s
+  end
 end
 
 class Game
@@ -124,6 +124,7 @@ class Game
   end
 
   def start(no_of_players)
+    raise ArgumentError.new('Number of Players must be greater than 1') if no_of_players < 2
     puts "New game with #{no_of_players} players is now started !"
     no_of_players.times do | num |
       puts "Enter the name of player #{num+1} -"
@@ -173,17 +174,23 @@ end
 
 
 new_game = Game.new
+
 puts "Starting a new game..."
 puts "Enter the number of players - "
-num_players = gets.chomp.to_i
-while num_players < 2 do
-  puts "Number of players must be a number and must be at least 2. Enter the number of players - "
-  num_players = gets.chomp.to_i
+
+loop do
+  begin
+    num_players = gets.chomp.to_i
+    new_game.start(no_of_players=num_players)
+    break
+  rescue ArgumentError
+    puts "Number of players must be a number and must be at least 2. Enter the number of players - "
+  end
 end
-new_game.start(no_of_players=num_players)
+
 puts "players #{new_game.players}"
 loop do
-  puts "turn - #{new_game.next_turn}"
+  puts "\nturn - #{new_game.next_turn}"
   break if new_game.play_turn
 end
 new_game.results

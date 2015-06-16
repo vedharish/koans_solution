@@ -57,6 +57,12 @@ class Player
   attr_accessor :name, :allowed_to_accumulate
   attr_reader :score
 
+  @@dice_set = nil
+
+  def Player.set_dice_set(dice_set)
+    @@dice_set = dice_set
+  end
+
   def initialize(name)
     @name = name
     @score = 0
@@ -74,14 +80,13 @@ class Player
   def play_turn
     acc_score = 0
     num_dice = 5
-    dice_set = DiceSet.new
     
     loop do
       puts "\n\n\n #{self} Rolling #{num_dice} dices..."
       gets.chomp
-      rolled_array = dice_set.roll num_dice
+      rolled_array = @@dice_set.roll num_dice
       puts "#{self} rolled #{rolled_array}."
-      roll_score, non_scoring = dice_set.score(rolled_array)
+      roll_score, non_scoring = @@dice_set.score(rolled_array)
       puts "The score in current roll is #{roll_score} with non-scoring dices #{non_scoring}"
       if !allowed_to_accumulate
         puts "The player is not yet allowed to accumulate scores!"
@@ -115,6 +120,7 @@ class Game
     @players = []
     @next_turn = 0
     @completed = false
+    Player.set_dice_set(DiceSet.new)
   end
 
   def start(no_of_players)
@@ -124,10 +130,6 @@ class Game
       @players << Player.new(gets.chomp)
     end
     @stop_game_at = no_of_players+1
-  end
-
-  def next_turn
-    @players[@next_turn]
   end
 
   def play_turn
@@ -162,6 +164,10 @@ class Game
   def increment_turn
     @next_turn += 1
     @next_turn = 0 if @next_turn >= @players.size
+  end
+
+  def next_turn
+    @players[@next_turn]
   end
 end
 

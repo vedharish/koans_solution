@@ -152,10 +152,11 @@ class Game
   end
 
   def results
-      @players.sort_by { |player| player.score }
-      @players.reverse
-      puts "The players and their scores are\n#{@players}"
-      puts "The winner is -- #{@players[0]}"
+    puts @players
+    @players.sort_by! { |player| player.score }
+    @players.reverse!
+    puts "The players and their scores are\n#{@players}"
+    puts "The winner is -- #{@players[0]}"
   end
 
   def increment_turn

@@ -18,37 +18,28 @@ class DiceSet
   end
 
   def score(dice)
-    if dice == []
+    if dice.empty?
       return 0
     else
-      h = {}
-      for k in dice
-        if not h.has_key?(k)
-          h[k] = 1
-        else
-          h[k] += 1
+      # A hash with key -> the face value of dice roll and value -> number of times the value occurs in the dice array
+      dice_dict = Hash.new(0)
+      dice.each { |roll_value| dice_dict[roll_value] += 1 }
+
+      # Scoring logic
+      score = 0
+      dice_dict.keys.each do | roll_value |
+        if dice_dict[roll_value] >= 3
+          score += roll_value == 1 ? 1000 : roll_value*100
+          dice_dict[roll_value] -= 3
+        end
+        if roll_value == 1 || roll_value == 5
+          multiply = (roll_value == 1) ? 100 : 50
+          score += dice_dict[roll_value]*multiply
+          dice_dict.delete(roll_value)
         end
       end
-      value = 0
-      for k in h.keys
-        if h[k] >= 3
-          if k == 1
-            value += 1000
-          else
-            value += k*100
-          end
-          h[k] -= 3
-        end
-        if k == 1
-          value += h[k]*100
-          h[k] = 0
-        elsif k == 5
-          value += h[k]*50
-          h[k] = 0
-        end
-      end
-      h.select! { |k, v| v > 0 }
-      return value, h
+      dice_dict.select! { |key, value| value > 0 }
+      return score, dice_dict
     end
   end
 end
@@ -80,31 +71,37 @@ class Player
     raise DiceSetNotDefined if @@dice_set.nil?
 
     loop do
-      puts "\n\n\n #{self} Rolling #{num_dice} dices..."
+      puts "\n\n\n #{self} is rolling #{num_dice} dices... Press Enter to continue."
       gets.chomp
       rolled_array = @@dice_set.roll num_dice
       puts "#{self} rolled #{rolled_array}."
       roll_score, non_scoring = @@dice_set.score(rolled_array)
       puts "The score in current roll is #{roll_score} with non-scoring dices #{non_scoring}"
+
       if !allowed_to_accumulate
         puts "The player is not yet allowed to accumulate scores!"
         return roll_score
       end
+      
       if roll_score == 0
         puts "You lose your chance as you scored zero in this roll. Your total score is #{self.score}."
         acc_score = 0
         return roll_score
       end
+
       acc_score += roll_score
       num_dice = non_scoring.values.inject { |sum, values| sum + values}
       num_dice = 5 if(num_dice == 0 || num_dice.nil?)
-      puts "Enter 'yes' if you want to roll #{num_dice} dices again. Your accumulated score uptil now is #{acc_score}. And your total score is #{@score}."
+      is_s = (num_dice > 1) ? "s" : ""
+      puts "Enter 'yes' if you want to roll #{num_dice} dice#{is_s} again. Your accumulated score uptil now is #{acc_score}. And your total score is #{@score}."
       response = gets.chomp
+
       if not response.downcase.include?("yes")
         @score += acc_score
         puts "You forfieted your turn."
         break
       end
+
     end
     puts "Your total score is #{@score}."
     return @score
@@ -148,12 +145,15 @@ class Game
   end
 
   def play_turn
+    # Check if the last round was the final round
     if @next_turn == @stop_game_at
       puts "The game is over."
       return true
     end
+
     next_player = self.next_turn
     player_score = next_player.play_turn
+
     if player_score >= 300
       if !next_player.allowed_to_accumulate
         next_player.allowed_to_accumulate = true
@@ -164,16 +164,17 @@ class Game
         @completed = true
       end
     end
+
     self.increment_turn
     false
   end
 
   def results
-    puts @players
     @players.sort_by! { |player| player.score }
     @players.reverse!
-    puts "The players and their scores are\n#{@players}"
-    puts "The winner is -- #{@players[0]}"
+    puts "\nThe players and their scores are -"
+    puts @players
+    puts "\nThe winner is -- #{@players[0]}"
   end
 
   def increment_turn

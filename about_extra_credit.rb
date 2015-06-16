@@ -59,12 +59,16 @@ class Player
 
   @@dice_set = nil
 
+  class DiceSetNotDefined < Exception
+  end
+
   def Player.set_dice_set(dice_set)
     @@dice_set = dice_set
   end
 
   def initialize(name)
-    @name = name
+    raise ArgumentError.new('Name of a person cannot be empty') if name.nil? or name.strip.empty?
+    @name = name.strip
     @score = 0
     @allowed_to_accumulate = false
   end
@@ -73,6 +77,8 @@ class Player
     acc_score = 0
     num_dice = 5
     
+    raise DiceSetNotDefined if @@dice_set.nil?
+
     loop do
       puts "\n\n\n #{self} Rolling #{num_dice} dices..."
       gets.chomp
@@ -128,7 +134,15 @@ class Game
     puts "New game with #{no_of_players} players is now started !"
     no_of_players.times do | num |
       puts "Enter the name of player #{num+1} -"
-      @players << Player.new(gets.chomp)
+      temp_player = nil
+      while temp_player.nil?
+          begin
+            temp_player = Player.new(gets.chomp)
+          rescue
+            puts "The Player name cannot be empty! Enter the player's name again -"
+          end
+      end
+      @players << temp_player
     end
     @stop_game_at = no_of_players+1
   end

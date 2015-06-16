@@ -70,7 +70,7 @@ class Player
       rolled_array = @@dice_set.roll num_dice
       puts "#{self} rolled #{rolled_array}."
       roll_score, non_scoring = @@dice_set.score(rolled_array)
-      puts "The score in current roll is #{roll_score} with non-scoring dices #{non_scoring}"
+      puts "The score in current roll is #{roll_score}."
 
       if !allowed_to_accumulate
         puts "The player is not yet allowed to accumulate scores!"
@@ -202,7 +202,7 @@ end
 
 puts "players #{new_game.players}"
 loop do
-  puts "\nturn - #{new_game.next_turn}"
+  puts "\nTurn to roll dice - #{new_game.next_turn}"
   break if new_game.play_turn
 end
 new_game.results

@@ -74,8 +74,14 @@ class Player
       puts "The score in current roll is #{roll_score}."
 
       if !allowed_to_accumulate
-        puts "The player is not yet allowed to accumulate scores!"
-        return roll_score
+        if roll_score >= 300
+          allowed_to_accumulate = true
+          puts "#{self} rolled #{roll_score}."
+          puts "#{self} is now allowed to accumulate scores!"
+        else
+          puts "The player is not yet allowed to accumulate scores!"
+          return roll_score
+        end
       end
       
       if roll_score == 0
@@ -156,15 +162,10 @@ class Game
     player_score = next_player.play_turn
 
     # Diving into the game rules
-    if player_score >= 300
-      if !next_player.allowed_to_accumulate
-        next_player.allowed_to_accumulate = true
-        puts "#{next_player} is now allowed to accumulate scores from the next turn!"
-      elsif player_score >= 3000 && !@completed
-        @stop_game_at = @next_turn
-        puts "----------\nPlayer #{next_player} reached #{player_score}.\nThis is the Final Round!\n----------"
-        @completed = true
-      end
+    if player_score >= 3000 && !@completed
+      @stop_game_at = @next_turn
+      puts "----------\nPlayer #{next_player} reached #{player_score}.\nThis is the Final Round!\n----------"
+      @completed = true
     end
 
     self.increment_turn
